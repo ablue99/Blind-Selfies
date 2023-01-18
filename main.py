@@ -1,27 +1,45 @@
 import cv2
 import numpy as np
+import pyaudio
+import pyttsx3
+import speech_recognition as sr
 
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+computer = pyttsx3.init()
+r = sr.Recognizer()
 
+computer.say("Specify a position your face should appear in the selfie, or ask for a list of "
+             + "positions by simply stating list.")
+computer.runAndWait()
 
-cv2.namedWindow('capture')
-# first need to get the frame from the webcamera and then change to grey
+def command_menu():
+    computer = pyttsx3.init()
+    while True:
+        with sr.Microphone() as source:
+            r.adjust_for_ambient_noise(source, duration=2)
 
-cap = cv2.VideoCapture(0)
-while True:
-    _, frame = cap.read()  # would have a bool for if it was read correctly, we don't care :) Or maybe we do, who knows
+            computer.say("Specify a position your face should appear in the selfie, or ask for a list of "
+             + "positions by simply stating list. Speak now!")
+            computer.runAndWait()
+            audio = r.listen(source)
+        try:
+            print("You said " + r.recognize_google(audio))
+            quad = r.recognize_google(audio);
+            quad = str.lower(quad)
+            if quad == "list":
+                computer.say("The list options are: top left, top right, bottom left, and bottom right")
+                computer.runAndWait()
+            elif quad in {"top left", "top right", "bottom left", "bottom right"}:
+                computer.say("Selected " + quad + ".")
+                computer.runAndWait()
+                break
+            else:
+                computer.say("Could not understand audio.")
+                computer.runAndWait()
 
-grey_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-face_coords = face_cascade.detectMultiScale(grey_frame, 1.2,
-                                            5)  # detect the face, return coordinates, may have more than one face
-# need to go through those faces and draw squares around each one
-for (x, y, w, h) in face_coords:
-    cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-    cv2.imshow('capture', frame)
+        except sr.UnknownValueError:
+            computer.say("Could not understand audio.")
+            computer.runAndWait()
+    return quad
 
-# cv2.waitkey(0)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+quad_command = command_menu()
 
-cap.release()
-cv2.destroyAllWindows()
