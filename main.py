@@ -18,7 +18,7 @@ def command_menu():
             r.adjust_for_ambient_noise(source, duration=2)
 
             computer.say("Specify a position your face should appear in the selfie, or ask for a list of "
-             + "positions by simply stating list. Speak now!")
+                         + "positions by simply stating list. Speak now!")
             computer.runAndWait()
             audio = r.listen(source)
         try:
