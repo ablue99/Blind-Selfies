@@ -6,15 +6,28 @@ import threading
 
 
 import speech_recognition as sr
-#import pyttsx3 as p3
+import pyttsx3 as p3
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
+
+def txt_to_speech(phrase):
+	computer = p3.init()
+	computer.say(phrase)
+	computer.runAndWait()
 
 
 def find_face(frame, bound_rect):
 	grey_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY) 
 	all_face_coords = face_cascade.detectMultiScale(grey_frame, 1.2, 5) # detect the face, return coordinates, may have more than one face
+
+
+	while str(all_face_coords) == "()":
+		t1 = threading.Thread(target=txt_to_speech("No face found."))
+		all_face_coords = face_cascade.detectMultiScale(grey_frame, 1.2, 5)
+		time.sleep(5)
+
+
 	move_right = False
 	move_up = False
 
@@ -109,7 +122,7 @@ while True:
 	timeout = time.time() + 2 #two seconds	 
 	while True:
 	# take and analyze a photo  
-		_, frame = cap.read() 
+		_, frame = cap.read()
 
 		# bound_frame outline
 		cv2.rectangle(frame, (int(bound_rect [0]),int (bound_rect [1])), (int (bound_rect [2]),int (bound_rect [3])), (255,0,0),2)
@@ -128,7 +141,7 @@ while True:
 			break
 
 	#face_t = threading.Thread(target = find_face, args = (frame, bound_rect))
-	#	face_t.start()	
+	#	face_t.start()
 	successful = find_face(frame, bound_rect)
 
 	if cv2.waitKey(1) & 0xFF == ord('q'):
