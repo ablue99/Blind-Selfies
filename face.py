@@ -119,7 +119,7 @@ def find_face(frame, bound_rect, no_face_flag):
 				txt_to_speech("Move down")
 				no_face_flag = 0
 				return (False, no_face_flag)
-
+  
 
 	# determine which instruction to give if a face is on the screen but not in the right quadrant
 	if move_right: 
