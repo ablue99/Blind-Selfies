@@ -224,11 +224,11 @@ while repeat:
 			txt_to_speech ("Picture saved, would you like to take another picture?")
 			while True:
 				with sr.Microphone() as source:
-					r.adjust_for_ambient_noise(source, duration=2)
-					audio = r.listen(source)
+					sr.adjust_for_ambient_noise(source, duration=2)
+					audio = sr.listen(source)
 				try:
-					y_n_reply = r.recognize_google(audio);
-					y_n_reply = str.lower(quad)
+					y_n_reply = sr.recognize_google(audio);
+					y_n_reply = str.lower(y_n_reply)
 					if y_n_reply == "yes":
 						txt_to_speech("Taking another photo")
 						break 
@@ -239,11 +239,10 @@ while repeat:
 						txt_to_speech("Could not understand audio.")
 
 				except sr.UnknownValueError:
-					computer.say("Could not understand audio.")
-					computer.runAndWait()
+					txt_to_speech("Could not understand audio.")
 				break
 
-txt_to_speech ("Exiting")
+txt_to_speech("Exiting")
 cap.release()
 cv2.destroyAllWindows()
 

@@ -11,6 +11,7 @@ computer.say("Specify a position your face should appear in the selfie, or ask f
              + "positions by simply stating list.")
 computer.runAndWait()
 
+
 def command_menu():
     computer = pyttsx3.init()
     while True:
@@ -41,5 +42,5 @@ def command_menu():
             computer.runAndWait()
     return quad
 
-quad_command = command_menu()
 
+quad_command = command_menu()
