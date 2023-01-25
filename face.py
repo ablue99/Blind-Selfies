@@ -139,10 +139,11 @@ def find_face(frame, bound_rect, no_face_flag):
 
 # end of fuctions
 
+
 repeat = True 
 # repeat taking the picture from here
 while repeat:
-
+	start_time = time.time()
 	cv2.namedWindow('capture', cv2.WINDOW_FULLSCREEN)
 	window_coords = cv2.getWindowImageRect('capture')
 	(_,_,window_width, window_length) = window_coords
@@ -173,9 +174,10 @@ while repeat:
 		# take and analyze a frame  
 			_, frame = cap.read() 
 
+
 			# bound_frame outline
 			# get rid of later
-			cv2.rectangle(frame, (int(bound_rect [0]),int (bound_rect [1])), (int (bound_rect [2]),int (bound_rect [3])), (255,0,0),2)
+			#cv2.rectangle(frame, (int(bound_rect [0]),int (bound_rect [1])), (int (bound_rect [2]),int (bound_rect [3])), (255,0,0),2)
 			cv2.imshow('capture',frame)	
 			if cv2.waitKey(1) & 0xFF == ord('q') or time.time()>timeout:
 				break
@@ -191,12 +193,13 @@ while repeat:
 			dt_str = now.strftime("%d_%m_%Y_%H_%M_%S")
 			cv2.imwrite('selfie_' + dt_str + '.jpg', frame) 
 			cv2.imshow('capture',frame)
+			computer = p3.init()
+			r = sr.Recognizer()
 			while True:
 				# asks if the user wants to take another photo
 				txt_to_speech ("Picture saved, would you like to take another picture?")
 				
-				computer = p3.init()
-				r = sr.Recognizer()
+				
 				with sr.Microphone() as source2:
 					r.adjust_for_ambient_noise(source2, duration=1)
 					audio2 = r.listen(source2)
@@ -211,12 +214,18 @@ while repeat:
 						break
 					else:
 						txt_to_speech("Could not understand audio.")
-
+						computer.runAndWait()
 				except sr.UnknownValueError:
 					computer.say("Could not understand audio.")
 					computer.runAndWait()
-				break
+			break
 
 txt_to_speech ("Exiting")
+end_time = time.time()
+print(end_time-start_time)
 cap.release()
 cv2.destroyAllWindows()
+
+
+
+
