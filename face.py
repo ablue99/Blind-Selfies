@@ -22,7 +22,7 @@ def txt_to_speech(phrase):
 if os.path.exists("selfie_times.csv"):
 	timeDF = pandas.read_csv("selfie_times.csv")
 else:
-	timeDF = pandas.DataFrame(columns=['Menu Time'])
+	timeDF = pandas.DataFrame(columns=['Menu Time', 'Picture Time', 'Yes or No Time'])
 
 
 def command_menu():
@@ -257,9 +257,8 @@ while repeat:
 txt_to_speech("Exiting")
 cap.release()
 cv2.destroyAllWindows()
-
-a = [[command_time], [picture_time], [another_picture_start]]
-
-timeDF.append(a)
+a = {'Menu Time': [command_time], 'Picture Time': [picture_time], 'Yes or No Time': [another_picture_start]}
+sf = pandas.DataFrame(data=a)
+timeDF = timeDF.append(sf)
 
 timeDF.to_csv("selfie_times.csv")
