@@ -55,9 +55,6 @@ def command_menu():
 
 
 
-
-
-
 def find_face(frame, bound_rect, no_face_flag):
 
 	grey_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
@@ -72,7 +69,6 @@ def find_face(frame, bound_rect, no_face_flag):
 		(x1,y1,x2,y2) = bound_rect
 		(x, y, w, h) = face_coords
 
-		# double check that this logic is correct, it's not
 		if ((x1 < x < x2 and y1 < y < y2) or # upper left corner of face
 				(x1 < x + w < x2 and y1 < y < y2) or # upper right corner of face
 				(x1 < x  < x2 and y1 < y + h < y2) or # lower right corner of face
@@ -91,32 +87,23 @@ def find_face(frame, bound_rect, no_face_flag):
 			return (True, no_face_flag) # successful
 
 		# determine right/ left orientation
-		# will need to have something to skip these blocks of code if the top was completed successfully
-		#if x1 == 0 and x + w  > x2: # if the face is too much to the right
 		if x1 == 0 and x > x2: # if the face is too much to the right
 			# give feedback, "move head to the right"(will be the opposite on the screen) or "move computer to the left"
 			move_right = True
-		#elif x1 != 0 and x+ w < x1: # if the face is too much to the left
 		elif x1 != 0 and x + w< x1: # if the face is too much to the left
 			# give feedback, "move head to the left" or "move computer to the left"
 			move_left = True
 
 		#determine up/down orientation
-		#if bound_rect[1] == 0 and y2 < y + h :   # if the face is too low
 		if bound_rect[1] == 0 and y2 < y:   # if the face is too low
 			# give feedback, "move head up" or "pull screen down a little"  
 			move_up = True
-		#elif y1 != 0 and y1 > y: # if the face is too high
 		elif y1 != 0 and y1 > (y +  h ): # if the face is too high
 			# give feedback, "move head down" or "push screen up a little"
 			move_down = True
 	else:
 		# no face detected
 		txt_to_speech("No face found")
-		#txt_to_speech("Move left")
-		#_, frame = cap.read() 
-		#grey_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY) 
-		#all_face_coords = face_cascade.detectMultiScale(grey_frame, 1.2, 5) # detect the face, return coordinates, may have more than one face
 		match no_face_flag:
 			case 0: # has not given instructions yet
 				# move left 
@@ -136,13 +123,11 @@ def find_face(frame, bound_rect, no_face_flag):
 			case 3: # told them to move left and right and up
 				txt_to_speech("Go back to original position")
 				txt_to_speech("Move down")
-				# add another warning
 				no_face_flag = 0
 				return (False, no_face_flag)
   
 
-	# determine which instruction to give, this may need to be changed so that it won't say down if you already are within that boundary
-	#if move_up and move_right: txt_to_speech("Move head up and right") 
+	# determine which instruction to give if a face is within the camera sight
 	if move_right:
 		txt_to_speech("Move head right")
 		no_face_flag = 0
@@ -152,14 +137,9 @@ def find_face(frame, bound_rect, no_face_flag):
 	elif move_up:
 		txt_to_speech("Move head up")
 		no_face_flag = 3
-	# set no_face_flag to 0
-	#	elif (not move_up) and move_right: txt_to_speech("Move head down and right") 
 	elif move_down:
 		txt_to_speech("Move head down")
 		no_face_flag = 2
-
-	#	elif move_up and (not move_right): txt_to_speech("Move head up and left") 
-	#	elif (not move_up) and (not move_right): txt_to_speech("Move head down and left") #is this effective or slow? 
 
 	return (False, no_face_flag) #did not take the photo
 
@@ -174,7 +154,6 @@ while repeat:
 	cv2.namedWindow('capture', cv2.WINDOW_FULLSCREEN)
 	window_coords = cv2.getWindowImageRect('capture')
 	(_,_,window_width, window_length) = window_coords
-	# 2= width, 3= length
 	width_mid = window_width*0.5
 	height_mid = window_length*0.5
 
@@ -183,13 +162,12 @@ while repeat:
 
 	# get the frame from the webcamera and change to grey
 	cap = cv2.VideoCapture(0)
-	# give starting prompt
+	# give starting prompt and start timing
 	command_start = time.time()
 	quad_command = command_menu()
 	command_time = time.time() - command_start
 
-	# quad_command = "bottom right"
-	# after it recieves a command
+
 	match quad_command: # boundary rectangle (x1, y1, x2, y2)
 		case "top left":
 			bound_rect = (0,0, width_mid/2, height_mid/2)
@@ -199,10 +177,6 @@ while repeat:
 			bound_rect = (0, height_mid*1.5, width_mid/2, window_length)
 		case "bottom right":
 			bound_rect = (width_mid*1.5, height_mid*1.5, window_width, window_length)
-		# ask the user to say the command again
-		# think about adding another option if voice doesn't work, like maybe pressing the space bar a certain number of times?
-		# or press the space bar when the option you want is said
-
 
 
 	while True:
@@ -213,17 +187,20 @@ while repeat:
 
 			# bound_frame outline
 			# get rid of later
-			cv2.rectangle(frame, (int(bound_rect [0]),int (bound_rect [1])), (int (bound_rect [2]),int (bound_rect [3])), (255,0,0),2)
+			#cv2.rectangle(frame, (int(bound_rect [0]),int (bound_rect [1])), (int (bound_rect [2]),int (bound_rect [3])), (255,0,0),2)
 			cv2.imshow('capture',frame)
 			if cv2.waitKey(1) & 0xFF == ord('q') or time.time()>timeout:
 				break
+		
 		picture_start = time.time()
+		
 		(successful, no_face_flag) = find_face(frame, bound_rect, no_face_flag)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 		picture_time = time.time() - picture_start
-		if successful: # needs to be changed to not just exit but to give a countdown then read and save the current frame
-			# then ask if the user wants to take another photo
+		
+		if successful: # gives a countdown then reads and saves the current frame
+			# then asks if the user wants to take another photo
 			_, frame = cap.read()
 			now = datetime.now()
 			dt_str = now.strftime("%d_%m_%Y_%H_%M_%S")
@@ -262,3 +239,4 @@ sf = pandas.DataFrame(data=a)
 timeDF = timeDF.append(sf)
 
 timeDF.to_csv("selfie_times.csv")
+
