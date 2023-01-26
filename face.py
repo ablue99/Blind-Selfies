@@ -72,7 +72,6 @@ def find_face(frame, bound_rect, no_face_flag):
 		(x1,y1,x2,y2) = bound_rect
 		(x, y, w, h) = face_coords
 
-		# double check that this logic is correct, it's not
 		if ((x1 < x < x2 and y1 < y < y2) or # upper left corner of face
 				(x1 < x + w < x2 and y1 < y < y2) or # upper right corner of face
 				(x1 < x  < x2 and y1 < y + h < y2) or # lower right corner of face
@@ -91,32 +90,23 @@ def find_face(frame, bound_rect, no_face_flag):
 			return (True, no_face_flag) # successful
 
 		# determine right/ left orientation
-		# will need to have something to skip these blocks of code if the top was completed successfully
-		#if x1 == 0 and x + w  > x2: # if the face is too much to the right
 		if x1 == 0 and x > x2: # if the face is too much to the right
 			# give feedback, "move head to the right"(will be the opposite on the screen) or "move computer to the left"
 			move_right = True
-		#elif x1 != 0 and x+ w < x1: # if the face is too much to the left
 		elif x1 != 0 and x + w< x1: # if the face is too much to the left
 			# give feedback, "move head to the left" or "move computer to the left"
 			move_left = True
 
 		#determine up/down orientation
-		#if bound_rect[1] == 0 and y2 < y + h :   # if the face is too low
 		if bound_rect[1] == 0 and y2 < y:   # if the face is too low
 			# give feedback, "move head up" or "pull screen down a little"  
 			move_up = True
-		#elif y1 != 0 and y1 > y: # if the face is too high
 		elif y1 != 0 and y1 > (y +  h ): # if the face is too high
 			# give feedback, "move head down" or "push screen up a little"
 			move_down = True
 	else:
 		# no face detected
 		txt_to_speech("No face found")
-		#txt_to_speech("Move left")
-		#_, frame = cap.read() 
-		#grey_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY) 
-		#all_face_coords = face_cascade.detectMultiScale(grey_frame, 1.2, 5) # detect the face, return coordinates, may have more than one face
 		match no_face_flag:
 			case 0: # has not given instructions yet
 				# move left 
@@ -157,9 +147,6 @@ def find_face(frame, bound_rect, no_face_flag):
 	elif move_down:
 		txt_to_speech("Move head down")
 		no_face_flag = 2
-
-	#	elif move_up and (not move_right): txt_to_speech("Move head up and left") 
-	#	elif (not move_up) and (not move_right): txt_to_speech("Move head down and left") #is this effective or slow? 
 
 	return (False, no_face_flag) #did not take the photo
 
