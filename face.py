@@ -238,5 +238,5 @@ a = {'Menu Time': [command_time], 'Picture Time': [picture_time], 'Yes or No Tim
 sf = pandas.DataFrame(data=a)
 timeDF = timeDF.append(sf)
 
-timeDF.to_csv("selfie_times.csv")
+timeDF.to_csv("selfie_times.csv", index=False)
 
