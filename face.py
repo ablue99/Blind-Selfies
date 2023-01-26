@@ -55,9 +55,6 @@ def command_menu():
 
 
 
-
-
-
 def find_face(frame, bound_rect, no_face_flag):
 
 	grey_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
@@ -126,13 +123,11 @@ def find_face(frame, bound_rect, no_face_flag):
 			case 3: # told them to move left and right and up
 				txt_to_speech("Go back to original position")
 				txt_to_speech("Move down")
-				# add another warning
 				no_face_flag = 0
 				return (False, no_face_flag)
   
 
-	# determine which instruction to give, this may need to be changed so that it won't say down if you already are within that boundary
-	#if move_up and move_right: txt_to_speech("Move head up and right") 
+	# determine which instruction to give if a face is within the camera sight
 	if move_right:
 		txt_to_speech("Move head right")
 		no_face_flag = 0
@@ -142,8 +137,6 @@ def find_face(frame, bound_rect, no_face_flag):
 	elif move_up:
 		txt_to_speech("Move head up")
 		no_face_flag = 3
-	# set no_face_flag to 0
-	#	elif (not move_up) and move_right: txt_to_speech("Move head down and right") 
 	elif move_down:
 		txt_to_speech("Move head down")
 		no_face_flag = 2
@@ -161,7 +154,6 @@ while repeat:
 	cv2.namedWindow('capture', cv2.WINDOW_FULLSCREEN)
 	window_coords = cv2.getWindowImageRect('capture')
 	(_,_,window_width, window_length) = window_coords
-	# 2= width, 3= length
 	width_mid = window_width*0.5
 	height_mid = window_length*0.5
 
@@ -170,13 +162,12 @@ while repeat:
 
 	# get the frame from the webcamera and change to grey
 	cap = cv2.VideoCapture(0)
-	# give starting prompt
+	# give starting prompt and start timing
 	command_start = time.time()
 	quad_command = command_menu()
 	command_time = time.time() - command_start
 
-	# quad_command = "bottom right"
-	# after it recieves a command
+
 	match quad_command: # boundary rectangle (x1, y1, x2, y2)
 		case "top left":
 			bound_rect = (0,0, width_mid/2, height_mid/2)
@@ -186,10 +177,6 @@ while repeat:
 			bound_rect = (0, height_mid*1.5, width_mid/2, window_length)
 		case "bottom right":
 			bound_rect = (width_mid*1.5, height_mid*1.5, window_width, window_length)
-		# ask the user to say the command again
-		# think about adding another option if voice doesn't work, like maybe pressing the space bar a certain number of times?
-		# or press the space bar when the option you want is said
-
 
 
 	while True:
@@ -200,17 +187,20 @@ while repeat:
 
 			# bound_frame outline
 			# get rid of later
-			cv2.rectangle(frame, (int(bound_rect [0]),int (bound_rect [1])), (int (bound_rect [2]),int (bound_rect [3])), (255,0,0),2)
+			#cv2.rectangle(frame, (int(bound_rect [0]),int (bound_rect [1])), (int (bound_rect [2]),int (bound_rect [3])), (255,0,0),2)
 			cv2.imshow('capture',frame)
 			if cv2.waitKey(1) & 0xFF == ord('q') or time.time()>timeout:
 				break
+		
 		picture_start = time.time()
+		
 		(successful, no_face_flag) = find_face(frame, bound_rect, no_face_flag)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
 		picture_time = time.time() - picture_start
-		if successful: # needs to be changed to not just exit but to give a countdown then read and save the current frame
-			# then ask if the user wants to take another photo
+		
+		if successful: # gives a countdown then reads and saves the current frame
+			# then asks if the user wants to take another photo
 			_, frame = cap.read()
 			now = datetime.now()
 			dt_str = now.strftime("%d_%m_%Y_%H_%M_%S")
@@ -250,3 +240,4 @@ a = [[command_time], [picture_time], [another_picture_start]]
 timeDF.append(a)
 
 timeDF.to_csv("selfie_times.csv")
+
