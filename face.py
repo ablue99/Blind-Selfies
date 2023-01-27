@@ -206,13 +206,12 @@ while repeat:
 			dt_str = now.strftime("%d_%m_%Y_%H_%M_%S")
 			cv2.imwrite('selfie_' + dt_str + '.jpg', frame)
 
-			txt_to_speech ("Picture saved, would you like to take another picture?")
 			another_picture_start = time.time()
 			while True:
 				r = sr.Recognizer()
 				with sr.Microphone() as source:
 					r.adjust_for_ambient_noise(source, duration=2)
-					txt_to_speech("Speak now!")
+					txt_to_speech("Picture saved, would you like to take another picture? Speak now!")
 					audio = r.listen(source)
 				try:
 					y_n_reply = r.recognize_google(audio);
