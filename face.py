@@ -22,7 +22,7 @@ def txt_to_speech(phrase):
 if os.path.exists("selfie_times.csv"):
 	timeDF = pandas.read_csv("selfie_times.csv")
 else:
-	timeDF = pandas.DataFrame(columns=['Menu Time', 'Picture Time', 'Yes or No Time'])
+	timeDF = pandas.DataFrame(columns=['Menu Time'])
 
 
 def command_menu():
@@ -74,15 +74,15 @@ def find_face(frame, bound_rect, no_face_flag):
 				(x1 < x  < x2 and y1 < y + h < y2) or # lower right corner of face
 				(x1 < x + w < x2 and y1 < y + h < y2)): # lower left corner of face
 			# then the face is in the specified rectangle and you can take a picture
-			txt_to_speech ("Hold position, taking picture in 5")
-			time.sleep(0.05)
-			txt_to_speech("4")
-			time.sleep(0.05)
-			txt_to_speech("3")
+			txt_to_speech ("Hold position, taking picture in 3")
 			time.sleep(0.05)
 			txt_to_speech("2")
 			time.sleep(0.05)
 			txt_to_speech("1")
+			#time.sleep(0.05)
+			#txt_to_speech("2")
+			#time.sleep(0.05)
+			#txt_to_speech("1")
 
 			return (True, no_face_flag) # successful
 
@@ -233,9 +233,9 @@ while repeat:
 txt_to_speech("Exiting")
 cap.release()
 cv2.destroyAllWindows()
-a = {'Menu Time': [command_time], 'Picture Time': [picture_time], 'Yes or No Time': [another_picture_start]}
-sf = pandas.DataFrame(data=a)
-timeDF = timeDF.append(sf)
 
-timeDF.to_csv("selfie_times.csv", index=False)
+a = [[command_time], [picture_time], [another_picture_start]]
 
+timeDF.append(a)
+
+timeDF.to_csv("selfie_times.csv")
