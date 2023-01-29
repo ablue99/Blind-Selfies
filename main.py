@@ -7,11 +7,6 @@ import speech_recognition as sr
 computer = pyttsx3.init()
 r = sr.Recognizer()
 
-computer.say("Specify a position your face should appear in the selfie, or ask for a list of "
-             + "positions by simply stating list.")
-computer.runAndWait()
-
-
 def command_menu():
     computer = pyttsx3.init()
     while True:
