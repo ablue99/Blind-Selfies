@@ -7,7 +7,6 @@ from datetime import datetime
 import speech_recognition as sr
 import pyttsx3 as p3
 import pyaudio
-import pandas
 import time
 import os
 
@@ -18,11 +17,6 @@ def txt_to_speech(phrase):
 	computer = p3.init()
 	computer.say(phrase)
 	computer.runAndWait()
-
-if os.path.exists("selfie_times.csv"):
-	timeDF = pandas.read_csv("selfie_times.csv")
-else:
-	timeDF = pandas.DataFrame(columns=['Menu Time'])
 
 
 def command_menu():
@@ -163,9 +157,7 @@ while repeat:
 	# get the frame from the webcamera and change to grey
 	cap = cv2.VideoCapture(0)
 	# give starting prompt and start timing
-	command_start = time.time()
 	quad_command = command_menu()
-	command_time = time.time() - command_start
 
 
 	match quad_command: # boundary rectangle (x1, y1, x2, y2)
@@ -192,12 +184,9 @@ while repeat:
 			if cv2.waitKey(1) & 0xFF == ord('q') or time.time()>timeout:
 				break
 		
-		picture_start = time.time()
-		
 		(successful, no_face_flag) = find_face(frame, bound_rect, no_face_flag)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
-		picture_time = time.time() - picture_start
 		
 		if successful: # gives a countdown then reads and saves the current frame
 			# then asks if the user wants to take another photo
@@ -233,9 +222,3 @@ while repeat:
 txt_to_speech("Exiting")
 cap.release()
 cv2.destroyAllWindows()
-
-a = [[command_time], [picture_time], [another_picture_start]]
-
-timeDF.append(a)
-
-timeDF.to_csv("selfie_times.csv")
