@@ -11,6 +11,8 @@ import pandas
 import time
 import os
 
+code_start = time.time()
+
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 
@@ -239,3 +241,5 @@ a = [[command_time], [picture_time], [another_picture_start]]
 timeDF.append(a)
 
 timeDF.to_csv("selfie_times.csv")
+
+print(time.time() - code_start)
